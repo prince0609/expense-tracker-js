@@ -1,0 +1,32 @@
+project-root/
+│
+├── src/                         # All source code lives here
+│   ├── config/                  # App config, DB connection
+│   │   └── db.js
+│   │
+│   ├── controllers/             # Request handlers (business logic)
+│   │   └── userController.js
+│   │
+│   ├── models/                  # Mongoose models (schemas)
+│   │   └── User.js
+│   │
+│   ├── routes/                  # Route definitions
+│   │   └── userRoutes.js
+│   │
+│   ├── middleware/              # Auth, error handling, etc.
+│   │   └── auth.js
+│   │   └── errorHandler.js
+│   │
+│   ├── utils/                   # Utility functions (e.g., token generation)
+│   │   └── generateToken.js
+│   │
+│   ├── validators/              # Joi/Yup or custom validation
+│   │   └── userValidator.js
+│   │
+│   ├── app.js                   # Express app setup
+│   └── index.js                # Actual entry point to start server
+│
+├── .env                         # Environment variables
+├── .gitignore
+├── package.json
+└── README.md
