@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Responsive Sidebar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+
+    <style>
+      .nav-link-active {
+        background-color: rgba(255, 255, 255, 0.8);
+      }
+
+      .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar for small screen toggle -->
+    <nav class="navbar navbar-dark bg-dark d-md-none">
+      <div class="container-fluid">
+        <button
+          class="btn btn-outline-light"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#sidebar"
+        >
+          ☰
+        </button>
+        <span class="navbar-text text-white">ExpenseTracker</span>
+      </div>
+    </nav>
+
+    <!-- Sidebar for medium and up -->
+    <div class="container-fluid ">
+      <div class="row">
+        <!-- Sidebar -->
+        <div
+          class="col-md-3 col-lg-2 d-none d-md-block bg-dark text-white rounded-4 min--100 p-3"
+          style="height: 80vh; position: fixed; top: 5vh; left: 1vw"
+        >
+          <h5 class="fs-4">Expense Tracker</h5>
+          <ul class="nav flex-column">
+            <li class="nav-item py-1 pt-4">
+              <a class="nav-link text-white" href="/api/users/dashboard"
+                ><i class="fas fa-tachometer-alt"></i> Dashboard
+              </a>
+            </li>
+            <li class="nav-item py-1">
+              <a class="nav-link text-white" href="/api/users/expense"
+                ><i class="fas fa-wallet"></i> Expense
+              </a>
+            </li>
+            <li class="nav-item py-1">
+              <a class="nav-link text-white" href="/api/users/reports"
+                ><i class="fas fa-chart-line"></i> Reports
+              </a>
+            </li>
+            <li class="nav-item py-1">
+              <a class="nav-link text-white" href="/api/users/settings"
+                ><i class="fas fa-cog"></i> Settings
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-5 mt-md-5 my-3">
+          <h2 class="mb-4 d-inline-block">Dashboard</h2>
+          <h5 class="float-end d-inline pe-3 pt-1">Hi, <%= user.name %></h5>
+          <div class="card shadow-lg rounded-4 px-2 mb-4" style="clear: both">
+            <div class="card-body">
+              <h5 class="card-title">Expense Overview</h5>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="card border-0 mt-2 bg-primary-subtle">
+                    <div class="card-body pt-2">
+                      <p class="card-title">Total Expenses Today</p>
+                      <br />
+                      <h5 class="card-text fs-3 fw-bold"><i class="fas fa-rupee-sign"></i> <%= totalToday %></h5>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card border-0 mt-2 bg-success-subtle">
+                    <div class="card-body pt-2">
+                      <p class="card-title">Total Expenses This Month</p>
+                      <br />
+                      <h5 class="card-text fs-3 fw-bold"><i class="fas fa-rupee-sign"></i> <%= totalMonth %></h5>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card border-0 mt-2 bg-warning-subtle text-dark">
+                    <div class="card-body pt-2">
+                      <p class="card-title">Total Expenses This Year</p>
+                      <br />
+                      <h5 class="card-text fs-3 fw-bold"><i class="fas fa-rupee-sign"></i> <%= totalYear %></h5>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-2 py-1">
+            <button
+              class="btn btn-primary mb-3"
+              data-bs-toggle="modal"
+              data-bs-target="#addExpenseModal"
+            >
+              <i class="fas fa-plus"></i> Add Expense
+            </button>
+          </div>
+
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title mb-3">Recent Expenses</h5>
+              <% if (expenses.length === 0) { %>
+                <p class="text-muted">No expenses recorded yet.</p>
+              <% } else { %>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <td scope="col">Date</td>
+                    <td scope="col">Note</td>
+                    <td scope="col">Category</td>
+                    <td scope="col">Amount</td>
+                  </tr>
+                </thead>
+                <tbody>
+                    <% expenses.forEach(expense => { %>
+                    <tr>
+                              <td><%= expense.date.toLocaleDateString() %></td>
+                              <td><%= expense.note %></td>
+                              <td><%= expense.category %></td>
+                              <td class="fw-bold"><i class="fas fa-rupee-sign"></i> <%= expense.amount %></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+              <% } %>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Offcanvas Sidebar for small screens -->
+    <div
+      class="offcanvas offcanvas-start bg-dark text-white"
+      tabindex="-1"
+      id="sidebar"
+    >
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="offcanvas"
+        ></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="nav flex-column">
+          <li class="nav-item py-1 pt-4">
+            <a class="nav-link text-white" href="/api/users/dashboard"
+              ><i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item py-1">
+            <a class="nav-link text-white" href="/api/users/expense"
+              ><i class="fas fa-wallet"></i> Expense
+            </a>
+          </li>
+          <li class="nav-item py-1">
+            <a class="nav-link text-white" href="/api/users/reports"
+              ><i class="fas fa-chart-line"></i> Reports
+            </a>
+          </li>
+          <li class="nav-item py-1">
+            <a class="nav-link text-white" href="/api/users/settings"
+              ><i class="fas fa-cog"></i> Settings
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div
+      class="modal fade"
+      id="addExpenseModal"
+      tabindex="-1"
+      aria-labelledby="addExpenseModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <form
+          action="/api/users/addExpense"
+          method="POST"
+          class="modal-content"
+        >
+          <div class="modal-header">
+            <h5 class="modal-title" id="addExpenseModalLabel">
+              Add New Expense
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="amount" class="form-label">Amount</label>
+              <input
+                type="number"
+                class="form-control"
+                name="amount"
+                id="amount"
+                required
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="category" class="form-label">Category</label>
+              <select
+                class="form-select"
+                name="category"
+                id="category"
+                required
+              >
+                <% user.settings.categoryList.forEach(category => { %>
+                <option value="<%= category %>"><%= category %></option>
+                <% }); %>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="note" class="form-label">Note</label>
+              <input type="text" class="form-control" name="note" id="note" />
+            </div>
+
+            <div class="mb-3">
+              <label for="date" class="form-label">Date</label>
+              <input type="date" class="form-control" name="date" id="date" />
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Add</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS (required for offcanvas) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll(".nav-link");
+
+        navLinks.forEach((link) => {
+          if (link.href.includes(currentPath)) {
+            console.log(link.classList);
+            link.classList.add("nav-link-active", "text-dark", "rounded-4");
+            link.classList.remove("text-white");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
