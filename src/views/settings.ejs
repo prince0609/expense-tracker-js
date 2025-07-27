@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title> Settings </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+
+    <style>
+      .nav-link-active {
+        background-color: rgba(255, 255, 255, 0.8);
+      }
+
+      .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar for small screen toggle -->
+    <nav class="navbar navbar-dark bg-dark d-md-none">
+      <div class="container-fluid">
+        <button
+          class="btn btn-outline-light"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#sidebar"
+        >
+          ☰
+        </button>
+        <span class="navbar-text text-white">ExpenseTracker</span>
+      </div>
+    </nav>
+
+    <!-- Sidebar for medium and up -->
+    <div class="container-fluid ">
+      <div class="row">
+        <!-- Sidebar -->
+        <div
+          class="col-md-3 col-lg-2 d-none d-md-block bg-dark text-white rounded-4 min--100 p-3"
+          style="height: 80vh; position: fixed; top: 5vh; left: 1vw"
+        >
+          <h5 class="fs-4">Expense Tracker</h5>
+          <ul class="nav flex-column">
+            <li class="nav-item py-1 pt-4">
+              <a class="nav-link text-white" href="/api/users/dashboard"
+                ><i class="fas fa-tachometer-alt"></i> Dashboard
+              </a>
+            </li>
+            <li class="nav-item py-1">
+              <a class="nav-link text-white" href="/api/users/expenses"
+                ><i class="fas fa-wallet"></i> Expense
+              </a>
+            </li>
+            <li class="nav-item py-1">
+              <a class="nav-link text-white" href="/api/users/reports"
+                ><i class="fas fa-chart-line"></i> Reports
+              </a>
+            </li>
+            <li class="nav-item py-1">
+              <a class="nav-link text-white" href="/api/users/settings"
+                ><i class="fas fa-cog"></i> Settings
+              </a>
+            </li>
+            <li class="nav-item py-1">
+              <a class="nav-link text-white" href="/api/users/logout"
+                ><i class="fas fa-sign-out-alt"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-5 mt-md-5 my-3">
+          <h2 class="mb-4 d-inline-block">Settings</h2>
+          <h5 class="float-end d-inline pe-3 pt-1">Hi, <%= user.name %></h5>
+          <div class="card shadow-lg px-2 mb-4" style="clear: both">
+                    
+          <h5 class="card-title mb-3 mt-2">Account Settings</h5>
+
+          <div>
+                    <p class="d-inline-block"><div class="d-inline-block col-md-1 col-3"> Username : </div>  
+                    <div style="width: 25vh; min-width:25vw" class="d-inline-block mx-3 rounded py-1 px-2 border border-dark-subtle "> <%= user.name %></div></p>
+          </div>
+          <div>
+                    <p class="d-inline-block"> <div class="d-inline-block col-md-1 col-3"> Email : </div> 
+                    <div style="width: 25vh; min-width:25vw" class="d-inline-block mx-3 rounded py-1 px-2 border border-dark-subtle "> <%= user.email %></div></p>
+          </div>
+          <div class="d-flex justify-content-end my-2">
+<button class="btn btn-outline-dark border" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+  Edit Profile
+</button>
+          </div>
+          </div>
+
+          <div class="card shadow-lg px-2">
+  <h5 class="card-title mb-3 mt-2">Preferences Settings</h5>
+
+  <div>
+    <p class="d-inline-block">
+      <div class="d-inline-block col-md-1 col-3">Categories:</div>
+      <div style="width: 25vh; min-width:25vw" class="d-inline-block mx-3 rounded py-1 px-2 border border-dark-subtle">
+        <%= user.settings.categoryList.join(", ") %>
+      </div>
+    </p>
+  </div>
+
+  <div>
+    <p class="d-inline-block">
+      <div class="d-inline-block col-md-1 col-3">Default:</div>
+      <div style="width: 25vh; min-width:25vw" class="d-inline-block mx-3 rounded py-1 px-2 border border-dark-subtle">
+        <%= user.settings.defaultCategory %>
+      </div>
+    </p>
+  </div>
+
+  <div>
+    <p class="d-inline-block">
+      <div class="d-inline-block col-md-1 col-3">Note:</div>
+      <div style="width: 25vh; min-width:25vw" class="d-inline-block mx-3 rounded py-1 px-2 border border-dark-subtle">
+        <%= user.settings.defaultNote %>
+      </div>
+    </p>
+  </div>
+
+  <div class="d-flex justify-content-end my-2">
+    <button class="btn btn-outline-dark border" data-bs-toggle="modal" data-bs-target="#preferencesModal">
+      Edit Preferences
+    </button>
+  </div>
+</div>
+
+
+          
+
+          
+        </main>
+      </div>
+    </div>
+
+<!-- edit prefernce modal -->
+    <div class="modal fade" id="preferencesModal" tabindex="-1" aria-labelledby="preferencesModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" id="preferencesForm">
+      <div class="modal-header">
+        <h5 class="modal-title" id="preferencesModalLabel">Edit Preferences</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="categoryList" class="form-label">Categories (comma-separated)</label>
+          <input type="text" class="form-control" id="categoryList" name="categoryList" value="<%= user.settings.categoryList.join(', ') %>">
+        </div>
+        <div class="mb-3">
+          <label for="defaultCategory" class="form-label">Default Category</label>
+          <input type="text" class="form-control" id="defaultCategory" name="defaultCategory" value="<%= user.settings.defaultCategory %>">
+        </div>
+        <div class="mb-3">
+          <label for="defaultNote" class="form-label">Default Note</label>
+          <input type="text" class="form-control" id="defaultNote" name="defaultNote" value="<%= user.settings.defaultNote %>">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Save Changes</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- edit profile modal  -->
+ <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content shadow rounded-4">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="/api/users/editProfile" method="POST">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" name="name" class="form-control" id="username" value="<%= user.name %>" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" id="email" value="<%= user.email %>" readonly disabled required>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+    <!-- Offcanvas Sidebar for small screens -->
+    <div
+      class="offcanvas offcanvas-start bg-dark text-white"
+      tabindex="-1"
+      id="sidebar"
+    >
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="offcanvas"
+        ></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="nav flex-column">
+          <li class="nav-item py-1 pt-4">
+            <a class="nav-link text-white" href="/api/users/dashboard"
+              ><i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item py-1">
+            <a class="nav-link text-white" href="/api/users/expenses"
+              ><i class="fas fa-wallet"></i> Expense
+            </a>
+          </li>
+          <li class="nav-item py-1">
+            <a class="nav-link text-white" href="/api/users/reports"
+              ><i class="fas fa-chart-line"></i> Reports
+            </a>
+          </li>
+          <li class="nav-item py-1">
+            <a class="nav-link text-white" href="/api/users/settings"
+              ><i class="fas fa-cog"></i> Settings
+            </a>
+          </li>
+          <li class="nav-item py-1">
+              <a class="nav-link text-white" href="/api/users/logout"
+                ><i class="fas fa-sign-out-alt"></i> Logout
+              </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    
+
+    <!-- Bootstrap JS (required for offcanvas) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll(".nav-link");
+
+        navLinks.forEach((link) => {
+          if (link.href.includes(currentPath)) {
+            console.log(link.classList);
+            link.classList.add("nav-link-active", "text-dark", "rounded-4");
+            link.classList.remove("text-white");
+          }
+        });
+      });
+    </script>
+
+    <script>
+  document.getElementById("preferencesForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const categoryList = document.getElementById("categoryList").value.split(',').map(x => x.trim());
+    const defaultCategory = document.getElementById("defaultCategory").value.trim();
+    const defaultNote = document.getElementById("defaultNote").value.trim();
+
+    fetch("/api/users/editPreferences", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        categoryList,
+        defaultCategory,
+        defaultNote
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        location.reload(); // refresh to reflect new preferences
+      } else {
+        alert("Update failed");
+      }
+    });
+  });
+</script>
+
+  </body>
+</html>

@@ -20,11 +20,16 @@ app.use(session({
   cookie: { secure: false }      // Set true if using HTTPS
 }));
 
+const noCache = require('./middleware/noCache');
+app.use(noCache); // Use noCache middleware to prevent caching
+
+
+
 
 const userRoutes = require('./routes/userRoutes');
 app.use('/api/users', userRoutes);
 
 
 app.listen(PORT, () => {
-  console.log(`Server running on port http://localhost:${PORT}/api/users/register`);
+  console.log(`Server running on port http://localhost:${PORT}/api/users/login`);
 });

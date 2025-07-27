@@ -24,8 +24,8 @@ const userSchema = new mongoose.Schema({
               'Food',
               'Transport',
               'Shopping',
-              'General Expense',
-              'Entertainment'
+              'Entertainment',
+              'General Expense'
             ]
           }, 
           defaultCategory: {

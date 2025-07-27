@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Expense</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+
+    <style>
+      .nav-link-active {
+        background-color: rgba(255, 255, 255, 0.8);
+      }
+
+      .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar for small screen toggle -->
+    <nav class="navbar navbar-dark bg-dark d-md-none">
+      <div class="container-fluid">
+        <button
+          class="btn btn-outline-light"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#sidebar"
+        >
+          ☰
+        </button>
+        <span class="navbar-text text-white">ExpenseTracker</span>
+      </div>
+    </nav>
+
+    <!-- Sidebar for medium and up -->
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar -->
+        <div
+          class="col-md-3 col-lg-2 d-none d-md-block bg-dark text-white rounded-4 min--100 p-3"
+          style="height: 80vh; position: fixed; top: 5vh; left: 1vw"
+        >
+          <h5 class="fs-4">Expense Tracker</h5>
+          <ul class="nav flex-column">
+            <li class="nav-item py-1 pt-4">
+              <a class="nav-link text-white" href="/api/users/dashboard"
+                ><i class="fas fa-tachometer-alt"></i> Dashboard
+              </a>
+            </li>
+            <li class="nav-item py-1">
+              <a class="nav-link text-white" href="/api/users/expenses"
+                ><i class="fas fa-wallet"></i> Your Expenses
+              </a>
+            </li>
+            <li class="nav-item py-1">
+              <a class="nav-link text-white" href="/api/users/reports"
+                ><i class="fas fa-chart-line"></i> Reports
+              </a>
+            </li>
+            <li class="nav-item py-1">
+              <a class="nav-link text-white" href="/api/users/settings"
+                ><i class="fas fa-cog"></i> Settings
+              </a>
+            </li>
+            <li class="nav-item py-1">
+              <a class="nav-link text-white" href="/api/users/logout"
+                ><i class="fas fa-sign-out-alt"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-5 mt-md-5 mt-3">
+          <h2 class="mb-4 d-inline-block">Your Expenses</h2>
+          <h5 class="float-end d-inline pe-3 pt-1">Hi, <%= user.name %> </h5>
+
+          <div class="card shadow-lg">
+            <div class="card-body">
+              <h5 class="card-title mb-3">Recent Expenses</h5>
+              <% if (expenses.length === 0) { %>
+              <p class="text-muted">No expenses recorded yet.</p>
+              <% } else { %>
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr class="text-muted">
+                      <td scope="col">Date</td>
+                      <td scope="col">Note</td>
+                      <td scope="col">Category</td>
+                      <td scope="col">Amount</td>
+                      <td></td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% expenses.forEach(expense => { %>
+
+                    <tr>
+                      <td><%= expense.date.toLocaleDateString() %></td>
+                      <td><%= expense.note %></td>
+                      <td><%= expense.category %></td>
+                      <td class="fw-bold">
+                        <i class="fas fa-rupee-sign"></i> <%= expense.amount %>
+                      </td>
+                      <td class="text-muted float-end">
+                        <button
+                          class="btn mx-0 px-0"
+                          data-bs-toggle="modal"
+                          data-bs-target="#editExpenseModal"
+                          onclick="populateEditForm('<%= expense.id %>', '<%= expense.amount %>', '<%= expense.date.toLocaleDateString() %>', '<%= expense.category %>', '<%= expense.note %>')"
+                        >
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button
+                          class="btn mx-0 px-0"
+                          onclick="deleteExpense('<%= expense._id %>')"
+                        >
+                          <i class="fas fa-times"> </i>
+                        </button>
+                      </td>
+                    </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="card mb-5 mt-3 shadow-lg">
+            <div class="card-body">
+              <h5 class="card-title mt-1  d-inline-block">Date Range:</h5>
+              <button
+                class="btn btn-sm float-end border border-dark-subtle mt-1"
+                onclick="filterExpenses()"
+                >OK</button
+              >
+              <input
+                type="date"
+                id="endDate"
+                class="form-control d-inline w-25 me-1 float-end"
+              />
+              <p class="d-inline-block float-end me-1 text-muted mt-2">to</p>
+              <input
+                type="date"
+                id="startDate"
+                class="form-control d-inline w-25 me-1 float-end"
+              />
+
+              <div id="expensesList" class="row w-100 mt-2 table-responsive">
+                <!-- Filtered expenses will be shown here -->
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Offcanvas Sidebar for small screens -->
+    <div
+      class="offcanvas offcanvas-start bg-dark text-white"
+      tabindex="-1"
+      id="sidebar"
+    >
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="offcanvas"
+        ></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="nav flex-column">
+          <li class="nav-item py-1 pt-4">
+            <a class="nav-link text-white" href="/api/users/dashboard"
+              ><i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item py-1">
+            <a class="nav-link text-white" href="/api/users/expenses"
+              ><i class="fas fa-wallet"></i> Your Expenses
+            </a>
+          </li>
+          <li class="nav-item py-1">
+            <a class="nav-link text-white" href="/api/users/reports"
+              ><i class="fas fa-chart-line"></i> Reports
+            </a>
+          </li>
+          <li class="nav-item py-1">
+            <a class="nav-link text-white" href="/api/users/settings"
+              ><i class="fas fa-cog"></i> Settings
+            </a>
+          </li>
+          <li class="nav-item py-1">
+            <a class="nav-link text-white" href="/api/users/logout"
+              ><i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Edit Expense Modal -->
+    <div
+      class="modal fade"
+      id="editExpenseModal"
+      tabindex="-1"
+      aria-labelledby="editExpenseModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content text-dark">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Expense</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="editExpenseForm">
+              <input type="hidden" id="expenseId" />
+
+              <div class="mb-3">
+                <label class="form-label">Amount</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="editAmount"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Date</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="editDate"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Category</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editCategory"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Note</label>
+                <textarea
+                  class="form-control"
+                  id="editNote"
+                  rows="2"
+                ></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-success w-100">
+                Update
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
+      <div
+        id="updateToast"
+        class="toast align-items-center text-white bg-success border-0"
+        role="alert"
+      >
+        <div class="d-flex">
+          <div class="toast-body">✅ Expense updated successfully!</div>
+          <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+          ></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+      <div id="deleteToast" class="toast text-bg-success" role="alert">
+        <div class="toast-body">Expense deleted successfully!</div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS (required for offcanvas) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll(".nav-link");
+
+        navLinks.forEach((link) => {
+          if (link.href.includes(currentPath)) {
+            console.log(link.classList);
+            link.classList.add("nav-link-active", "text-dark", "rounded-4");
+            link.classList.remove("text-white");
+          }
+        });
+      });
+    </script>
+
+    <script>
+      function populateEditForm(id, amount, date, category, note) {
+        document.getElementById("expenseId").value = id;
+        document.getElementById("editAmount").value = amount;
+        document.getElementById("editDate").value = date;
+        document.getElementById("editCategory").value = category;
+        document.getElementById("editNote").value = note;
+      }
+
+      document
+        .getElementById("editExpenseForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const id = document.getElementById("expenseId").value;
+          const amount = document.getElementById("editAmount").value;
+          const date = document.getElementById("editDate").value;
+          const category = document.getElementById("editCategory").value;
+          const note = document.getElementById("editNote").value;
+
+          const res = await fetch(`/api/users/updateExpense`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, amount, date, category, note }),
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            const toast = new bootstrap.Toast(
+              document.getElementById("updateToast")
+            );
+            toast.show();
+
+            setTimeout(() => location.reload(), 1500);
+          } else {
+            alert(data.message || "Failed to update");
+          }
+        });
+    </script>
+
+    <script>
+      const toast = new bootstrap.Toast(document.getElementById("deleteToast"));
+
+      function deleteExpense(expenseId) {
+        fetch(`/api/users/deleteExpense/${expenseId}`, { method: "DELETE" })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.message === "Expense deleted successfully") {
+              toast.show();
+              setTimeout(() => location.reload(), 1500);
+            }
+          });
+      }
+    </script>
+
+    <script>
+      function filterExpenses() {
+        const start = document.getElementById("startDate").value;
+        const end = document.getElementById("endDate").value;
+
+        if (!start || !end) return alert("Please select both dates");
+
+        fetch(`/api/users/filter?start=${start}&end=${end}`)
+          .then((res) => res.json())
+          .then((data) => {
+            const container = document.getElementById("expensesList");
+
+            if (data.length === 0) {
+              container.innerHTML = "<p>No expenses found in this range.</p>";
+              return;
+            }
+            container.innerHTML = `
+                                        <table class="table">
+                                        <thead>
+                                        <tr>
+                                        <td>Date</td>
+                                        <td>Note</td>
+                                        <td>Category</td>
+                                        <td>Amount</td>
+                                        <td></td>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="filteredData"></tbody>
+                                        </table>
+                                        `;
+
+            const tbody = document.getElementById("filteredData");
+
+            tbody.innerHTML = ""; // Clear existing content
+          console.log(data)
+            data.forEach((exp) => {
+              tbody.innerHTML += `
+          <tr>
+          <td>${new Date(exp.date).toLocaleDateString()}</td>
+          <td>${exp.note}</td>
+          <td>${exp.category}</td>
+          <td><i class="fas fa-rupee-sign"></i>${exp.amount}</td>
+          <td class="text-muted float-end">
+                        <button
+                          class="btn mx-0 px-0"
+                          data-bs-toggle="modal"
+                          data-bs-target="#editExpenseModal"
+                          onclick="populateEditForm('${exp._id}', '${
+                exp.amount
+              }', '${new Date(exp.date).toLocaleDateString()}', '${
+                exp.category
+              }', '${exp.note}')"
+                        >
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button
+                          class="btn mx-0 px-0"
+                          onclick="deleteExpense('${exp._id}')"
+                        >
+                          <i class="fas fa-times"> </i>
+                        </button>
+                      </td>
+          </tr>
+          `;
+            });
+          });
+      }
+    </script>
+  </body>
+</html>
